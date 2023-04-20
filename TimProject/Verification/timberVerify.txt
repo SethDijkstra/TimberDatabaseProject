@@ -1,0 +1,89 @@
+SQL> 
+SQL> --Use select statements to grab data from all tables.
+SQL> select * from tim_category;
+
+CATEGORY_NO CATEGORY_NAME             PARENT_CATEGORY_NO                                                                                                                                                
+----------- ------------------------- ------------------                                                                                                                                                
+          1 Electronics                                                                                                                                                                                 
+          2 Books                                                                                                                                                                                       
+          3 Sports & Outdoors                                                                                                                                                                           
+          4 Laptops                                    1                                                                                                                                                
+          5 Tablets                                    1                                                                                                                                                
+          6 Children's Books                           2                                                                                                                                                
+          7 History                                    2                                                                                                                                                
+          8 Cycling                                    3                                                                                                                                                
+          9 Golf                                       3                                                                                                                                                
+
+9 rows selected.
+
+SQL> select * from tim_suppliers;
+
+SUPPLIER_NO SUPPLIER_NAME        SUPPLIER_EMAIL            SUPPLIER_CITY             SU                                                                                                                 
+----------- -------------------- ------------------------- ------------------------- --                                                                                                                 
+          1 Apple                apple@buyme.ca            Toronto                   ON                                                                                                                 
+          2 Dell                 dell@buyme.ca             Toronto                   ON                                                                                                                 
+          3 Indigo               indigo@buyme.ca           Calgary                   AB                                                                                                                 
+          4 Nike                 nike@buyme.ca             Calgary                   AB                                                                                                                 
+          5 BikesRFun            bikesrfun@buyme.ca        Saskatoon                 SK                                                                                                                 
+
+SQL> select * from tim_customer;
+
+CUSTOMER_NO CUSTOMER_ADDRESS          CUSTOMER_CITY   CU POSTAL CUSTOMER_PHONE CUSTOMER_EMAIL                 CUSTOMER_IS_TIMBER_MEMBER                                                                 
+----------- ------------------------- --------------- -- ------ -------------- ------------------------------ -------------------------                                                                 
+         32 123 Main St               Vancouver       BC V6A1C5 555-123-4567   john.doe@gmail.com                                     1                                                                 
+         54 474 2nd Ave               Edmonton        AB T1A3T5 555-252-4667   john.jeffery@gmail.com                                 0                                                                 
+         62 987 Flower Rd             Yellowknife     NT X1A2P5 888-425-5325   george.jery@outloook.com                               0                                                                 
+         10 474 2nd Ave               Montreal        QC T1A3T5 984-123-4144   ned-bucannon@hotmail.com                               1                                                                 
+         93 1442 81st St              Winnipeg        MB R3B0P8 403-555-1234   ben-stiller@icloud.ca                                  0                                                                 
+         23 587 Clover St             Regina          SK S4S0S4 843-231-4156   kate-cloud@shaw.ca                                     1                                                                 
+         12 111 9th Ave               St. John's      NL A1C6H9 888-614-9892   peanut-butter@sait.ca                                  1                                                                 
+
+7 rows selected.
+
+SQL> select * from tim_product;
+
+PRODUCT_NO PRODUCT_NAME              PRODUCT_DESC                             PRODUCT_PRICE PRODUCT_WEIGHT TAX_EXEMPT PRODUCT_CATEGORY PRODUCT_SUPPLIER_NO                                              
+---------- ------------------------- ---------------------------------------- ------------- -------------- ---------- ---------------- -------------------                                              
+      1133 Dell 15" Laptop           A 15" Laptop made by Dell.                     1029.99            3.5          0                4                   2                                              
+      1564 Ipad Pro                  Apple's top of the line tablet.                 899.99              2          0                5                   1                                              
+      1923 Mountain Bike             A bike...for the mountains...                   699.99             15          1                8                   5                                              
+       945 Sapiens                   A brief history of humankind.                       23             .1          0                7                   3                                              
+      1020 Harry Potter              Yer a wizard Harry.                              10.99            .09          0                6                   3                                              
+      1150 E-Bike                    A fast electric bicylce.                          1600             20          1                8                   5                                              
+       999 50 Golfballs              Balls you golf with.                             39.99              5          0                9                   4                                              
+
+7 rows selected.
+
+SQL> select * from tim_customer_reviews;
+
+ REVIEW_NO CUSTOMER_NO PRODUCT_NO     RATING REVIEW_COMMENT                                          REVIEW_DA                                                                                          
+---------- ----------- ---------- ---------- ------------------------------------------------------- ---------                                                                                          
+      9234          54       1923          1 I fell off. 1 star.                                     15-MAR-21                                                                                          
+      1394          32        945          5 My brain grew 3 sizes.                                  20-FEB-20                                                                                          
+      2103          93       1020          4 An amazing book, not my favourite Harry Potter though.  05-SEP-15                                                                                          
+      4742          12        999          3 Fine balls. Golf game hasn't improved.                  15-APR-18                                                                                          
+      3132          23       1150          5 A tesla but the wind in your hair.                      29-DEC-22                                                                                          
+
+SQL> select * from tim_orders;
+
+  ORDER_NO CUSTOMER_NO ORDER_DAT ESTIMATED_DELIVERY_DAYS SHIPPING_COST  ORDER_TAX OR                                                                                                                    
+---------- ----------- --------- ----------------------- ------------- ---------- --                                                                                                                    
+       234          62 12-OCT-22                       3          4.99       2.99 NT                                                                                                                    
+       391          12 09-SEP-21                      11             0       1.99 NL                                                                                                                    
+       450          93 25-APR-22                       7          4.99       2.99 MB                                                                                                                    
+        99          10 03-JAN-23                      12             0      20.99 QC                                                                                                                    
+       123          54 12-FEB-23                       8          4.99      11.99 AB                                                                                                                    
+       742          32 30-DEC-22                      20             0       5.99 BC                                                                                                                    
+
+6 rows selected.
+
+SQL> select * from tim_availability;
+
+no rows selected
+
+SQL> select * from tim_order_item;
+
+no rows selected
+
+SQL> 
+SQL> spool off

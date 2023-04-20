@@ -1,0 +1,271 @@
+SQL> 
+SQL> 
+SQL> --Show all products available
+SQL> select product_name
+  2  from tim_product join tim_availability using(product_no)
+  3  where quantity_on_hand >0;
+
+                                 Supplier Report                                
+                                                                                
+PRODUCT_NAME                                                                    
+-------------------------                                                       
+Harry Potter                                                                    
+Dell 15" Laptop                                                                 
+E-Bike                                                                          
+Ipad Pro                                                                        
+Mountain Bike                                                                   
+SQL> 
+SQL> 
+SQL> --Show all customer information
+SQL> column customer_no format A11
+SQL> column 'Address' format A40
+SQL> column 'Phone #' format A20
+SQL> column 'Email' format A25
+SQL> column 'Timber Member' format A15
+SQL> select customer_no "Customer #", customer_address || ', ' || customer_city || ' ' || customer_province || ' ' || c.postal_code "Address",
+  2  	    customer_phone_no "Phone #", customer_email "Email",
+  3  	    case
+  4  	    when customer_is_timber_member = 1 then 'Yes'
+  5  	    else 'No'
+  6  	    end as "Timber Member"
+  7  from tim_customer c;
+
+                                 Supplier Report                                
+                                                                                
+Customer # Address                                  Phone #                     
+---------- ---------------------------------------- --------------------        
+Email                     Timber Member                                         
+------------------------- ---------------                                       
+        32 123 Main St, Vancouver BC V6A1C5         555-123-4567                
+john.doe@gmail.com        Yes                                                   
+                                                                                
+        54 474 2nd Ave, Edmonton AB T1A3T5          555-252-4667                
+john.jeffery@gmail.com    No                                                    
+                                                                                
+        62 987 Flower Rd, Yellowknife NT X1A2P5     888-425-5325                
+george.jery@outloook.com  No                                                    
+                                                                                
+        10 474 2nd Ave, Montreal QC T1A3T5          984-123-4144                
+ned-bucannon@hotmail.com  Yes                                                   
+                                                                                
+        93 1442 81st St, Winnipeg MB R3B0P8         403-555-1234                
+ben-stiller@icloud.ca     No                                                    
+                                                                                
+        23 587 Clover St, Regina SK S4S0S4          843-231-4156                
+kate-cloud@shaw.ca        Yes                                                   
+                                                                                
+        12 111 9th Ave, St. John's NL A1C6H9        888-614-9892                
+peanut-butter@sait.ca     Yes                                                   
+                                                                                
+SQL> 
+SQL> clear columns
+SQL> 
+SQL> --Show all customer reviews for a given product (Input a product ID)
+SQL> 
+SQL> --Show all orders
+SQL> column 'Product' format A17
+SQL> column 'Delivered By' format A12
+SQL> select order_no "Order #", product_name "Product", estimated_delivery_date "Delivered By"
+  2  from tim_orders join tim_order_item using(order_no)
+  3  	  join tim_product using(product_no);
+
+                                 Supplier Report                                
+                                                                                
+   Order # Product           Delivered By                                       
+---------- ----------------- ------------                                       
+       234 Dell 15" Laptop   14-OCT-22                                          
+       391 Ipad Pro          12-SEP-21                                          
+       450 Mountain Bike                                                        
+        99 Sapiens           06-JAN-23                                          
+       123 Harry Potter      16-FEB-23                                          
+       742 E-Bike                                                               
+       102 50 Golfballs      20-OCT-21                                          
+SQL> clear columns
+SQL> 
+SQL> --Show all suppliers of a product
+SQL> 
+SQL> select supplier_name
+  2  from tim_suppliers
+  3  where supplier_no in
+  4  	 (select product_supplier_no
+  5  	  from tim_product);
+    (select product_supplier_no
+            *
+ERROR at line 4:
+ORA-00904: "PRODUCT_SUPPLIER_NO": invalid identifier 
+
+
+SQL> 
+SQL> --Show a sorted list of the most popular products based on order history
+SQL> 
+SQL> select product_name "Product Name", count(order_date) "Times Ordered"
+  2  from tim_product join tim_order_item using(product_no)
+  3  	  join tim_orders using(order_no)
+  4  group by product_name
+  5  order by 2 desc;
+
+                                 Supplier Report                                
+                                                                                
+Product Name              Times Ordered                                         
+------------------------- -------------                                         
+Sapiens                               1                                         
+50 Golfballs                          1                                         
+Harry Potter                          1                                         
+E-Bike                                1                                         
+Ipad Pro                              1                                         
+Mountain Bike                         1                                         
+Dell 15" Laptop                       1                                         
+SQL> 
+SQL> 
+SQL> --Show the number of products ordered by each customer
+SQL> select customer_no "Customer #", count(product_no) "Number Of Orders"
+  2  from tim_product join tim_order_item using(product_no)
+  3  	  join tim_orders using (order_no)
+  4  where product_name in
+  5  	 (select product_name
+  6  	  from tim_product join tim_order_item using(product_no))
+  7  group by customer_no
+  8  order by customer_no;
+
+                                 Supplier Report                                
+                                                                                
+Customer # Number Of Orders                                                     
+---------- ----------------                                                     
+        10                2                                                     
+        12                1                                                     
+        32                1                                                     
+        54                1                                                     
+        62                1                                                     
+        93                1                                                     
+SQL> 
+SQL> --Output all the details on an order, including shipping and appropriate provincial and federal taxes
+SQL> column 'Order Date' format A15
+SQL> column 'Province' format A10
+SQL> column 'Product Price' format '$9,999.00'
+SQL> column 'Shipping Cost' format '$9,999.00'
+SQL> column 'Tax' format '$9,999.00'
+SQL> column 'Total Cost' format '$9,999.00'
+SQL> select order_no "Order #", customer_no "Customer #", order_date "Order Date",
+  2  	    estimated_delivery_date "Delivery Date", product_price "Product Price", shipping_cost "Shipping Cost",
+  3  	    order_tax "Tax", order_province "Province", order_tax + shipping_cost + product_price "Total Cost"
+  4  from tim_orders join tim_order_item using(order_no)
+  5  	  join tim_product using (product_no);
+
+                                 Supplier Report                                
+                                                                                
+   Order # Customer # Order Date      Delivery  Product Price Shipping Cost     
+---------- ---------- --------------- --------- ------------- -------------     
+       Tax Province   Total Cost                                                
+---------- ---------- ----------                                                
+       234         62 12-OCT-22       14-OCT-22     $1,029.99         $4.99     
+     $2.99 NT          $1,037.97                                                
+                                                                                
+       391         12 09-SEP-21       12-SEP-21       $899.99          $.00     
+     $1.99 NL            $901.98                                                
+                                                                                
+       450         93 25-APR-22                       $699.99         $4.99     
+     $2.99 MB            $707.97                                                
+                                                                                
+        99         10 03-JAN-23       06-JAN-23        $23.00          $.00     
+    $20.99 QC             $43.99                                                
+                                                                                
+       123         54 12-FEB-23       16-FEB-23        $10.99         $4.99     
+    $11.99 AB             $27.97                                                
+                                                                                
+       742         32 30-DEC-22                     $1,600.00          $.00     
+     $5.99 BC          $1,605.99                                                
+                                                                                
+       102         10 12-OCT-21       20-OCT-21        $39.99        $15.00     
+     $7.99 NL             $62.98                                                
+                                                                                
+SQL> clear columns
+SQL> 
+SQL> --Difficult: Given a customer name, find “recommended products” for the customer
+SQL> 
+SQL> --just need to add user input to find reccomended. It is hard coded rn
+SQL> 
+SQL> accept customer_no number prompt 'Enter Customer number: '
+Enter Customer number: 10
+SQL> select distinct product_name "Recommended Products"
+  2  from tim_customer join tim_orders using(customer_no)
+  3  	  join tim_order_item using(order_no)
+  4  	  join tim_product using(product_no)
+  5  where product_no in
+  6  	 (select product_no
+  7  	 from tim_customer join tim_orders using(customer_no)
+  8  	     join tim_order_item using(order_no)
+  9  	     join tim_product using(product_no)
+ 10  	 where customer_no like (&customer_no)) and product_name not in
+ 11  	  (select product_name
+ 12  	   from tim_customer join tim_orders using(customer_no)
+ 13  		join tim_order_item using(order_no)
+ 14  		join tim_product using(product_no)
+ 15  	   where customer_no!= &customer_no);
+
+                                 Supplier Report                                
+                                                                                
+Recommended Products                                                            
+-------------------------                                                       
+Sapiens                                                                         
+50 Golfballs                                                                    
+SQL> 
+SQL> 
+SQL> set linesize 75
+SQL> set pagesize 60
+SQL> ttitle center 'Supplier Report' Skip 2
+SQL> btitle off
+SQL> break on "Supplier" skip 1 on Report
+SQL> compute sum Label 'Supplier Total Value' of ovalue on "Supplier"
+SQL> compute sum Label 'Timber Total Sales' of ovalue on Report
+SQL> column ovalue format $9,999.00 heading 'Order|Value'
+SQL> column product_price format $9,999.00 heading 'Product|Price'
+SQL> select supplier_name "Supplier", product_name "Product",
+  2  	    count(order_no) "Times Ordered",
+  3  	    sum(product_price + order_tax + shipping_cost) ovalue
+  4  from tim_suppliers join tim_availability using(supplier_no)
+  5  	  join tim_product using(product_no)
+  6  	  join tim_order_item using(product_no)
+  7  	  join tim_orders using (order_no)
+  8  group by supplier_name, product_name;
+
+                              Supplier Report                              
+                                                                           
+                                                                  Order    
+Supplier             Product                   Times Ordered      Value    
+-------------------- ------------------------- ------------- ----------    
+Dell                 Dell 15" Laptop                       1  $1,037.97    
+********************                                         ----------    
+Supplier Total Value                                          $1,037.97    
+                                                                           
+Apple                Ipad Pro                              1    $901.98    
+********************                                         ----------    
+Supplier Total Value                                            $901.98    
+                                                                           
+BikesRFun            Mountain Bike                         1    $707.97    
+********************                                         ----------    
+Supplier Total Value                                            $707.97    
+                                                                           
+Indigo               Sapiens                               1     $43.99    
+                     Harry Potter                          1     $27.97    
+********************                                         ----------    
+Supplier Total Value                                             $71.96    
+                                                                           
+BikesRFun            E-Bike                                1  $1,605.99    
+********************                                         ----------    
+Supplier Total Value                                          $1,605.99    
+                                                                           
+Nike                 50 Golfballs                          1     $62.98    
+********************                                         ----------    
+Supplier Total Value                                             $62.98    
+                                                                           
+                                                             ----------    
+Timber Total Sales                                            $4,388.85    
+SQL> clear breaks
+SQL> clear columns
+SQL> clear computes
+SQL> 
+SQL> 
+SQL> 
+SQL> 
+SQL> 
+SQL> spool off

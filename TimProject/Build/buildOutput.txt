@@ -1,0 +1,162 @@
+SQL> 
+SQL> --drop child tables first then parent
+SQL> drop table tim_order_item;
+
+Table dropped.
+
+SQL> drop table tim_availability;
+
+Table dropped.
+
+SQL> drop table tim_orders;
+
+Table dropped.
+
+SQL> drop table tim_customer_reviews;
+
+Table dropped.
+
+SQL> drop table tim_product;
+
+Table dropped.
+
+SQL> drop table tim_customer;
+
+Table dropped.
+
+SQL> drop table tim_suppliers;
+
+Table dropped.
+
+SQL> drop table tim_category;
+
+Table dropped.
+
+SQL> 
+SQL> 
+SQL> --create parent tables followed by child
+SQL> create table tim_category(
+  2  	 category_no number(4,2) constraint sys_category_no_pk Primary Key,
+  3  	 category_name varchar2(25) not null,
+  4  	 parent_category_no number,
+  5  	 constraint sys_category_no_fk foreign key (parent_category_no)
+  6  	     references tim_category(category_no)
+  7  );
+
+Table created.
+
+SQL> 
+SQL> create table tim_suppliers(
+  2  	 supplier_no number,
+  3  	 supplier_name varchar2(20) not null,
+  4  	 supplier_email varchar2(25) not null,
+  5  	 supplier_city varchar2(25) not null,
+  6  	 supplier_province char(2) not null constraint sys_tim_supplier_province_ck
+  7  	     check (supplier_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QC', 'NB', 'NS', 'NL' ,'NT', 'NU', 'PE', 'YT' ))
+  8  );
+
+Table created.
+
+SQL> 
+SQL> alter table tim_suppliers
+  2  	 add constraint sys_supplier_no_pk primary key(supplier_no);
+
+Table altered.
+
+SQL> alter table tim_suppliers
+  2  	 add constraint sys_suppler_email_ck check (supplier_email like '%__@%.%');
+
+Table altered.
+
+SQL> 
+SQL> create table tim_customer(
+  2  	 customer_no number constraint sys_customer_no_pk2 Primary Key,
+  3  	 customer_address varchar2(25) not null,
+  4  	 customer_city varchar2(15) not null,
+  5  	 customer_province varchar2(2) not null constraint sys_tim_customer_province_ck2
+  6  	     check (customer_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QC', 'NB', 'NS', 'NL' ,'NT', 'NU', 'PE', 'YT' )),
+  7  	 postal_code varchar2(6) constraint sys_postal_code_ck2 check (REGEXP_LIKE(postal_code, '^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$')),
+  8  	 customer_phone_no varchar2(14) not null constraint sys_customer_phone_ck2 CHECK (REGEXP_LIKE(customer_phone_no, '[0-9]{3}-[0-9]{3}-[0-9]{4}')),
+  9  	 customer_email varchar2(30) not null constraint sys_customer_email_ck2 check (customer_email like '%__@%.%'),
+ 10  	 customer_is_timber_member number(1) not null check (customer_is_timber_member in (0,1))
+ 11  );
+
+Table created.
+
+SQL> 
+SQL> create table tim_product(
+  2  	 product_no number constraint sys_product_no_pk Primary Key,
+  3  	 product_name varchar2(25) not null,
+  4  	 product_desc varchar2(40) not null,
+  5  	 product_price number(8,2) not null,
+  6  	 product_weight number(4,2) not null,
+  7  	 tax_exempt number(1) not null,
+  8  	 product_category number(3),
+  9  	 supplier_no number(1),
+ 10  	 constraint sys_product_category_fk foreign key (product_category)
+ 11  	     references tim_category(category_no),
+ 12  	 constraint sys_product_supplier_no_fk foreign key (supplier_no)
+ 13  	     references tim_suppliers(supplier_no)
+ 14  );
+
+Table created.
+
+SQL> 
+SQL> create table tim_customer_reviews(
+  2  	 review_no number constraint sys_review_no_pk Primary Key,
+  3  	 customer_no number,
+  4  	 product_no number,
+  5  	 rating number not null constraint sys_rating_ck check (rating BETWEEN 1 AND 5),
+  6  	 review_comment varchar2(55) not null,
+  7  	 review_date DATE not null,
+  8  	 constraint sys_customer_no_fk foreign key (customer_no)
+  9  	     references tim_customer(customer_no),
+ 10  	 constraint sys_product_no_fk foreign key (product_no)
+ 11  	     references tim_product(product_no)
+ 12  );
+
+Table created.
+
+SQL> 
+SQL> create table tim_orders(
+  2  	 order_no number constraint sys_orders_no_pk Primary Key,
+  3  	 customer_no number,
+  4  	 order_date DATE not null,
+  5  	 estimated_delivery_date date,
+  6  	 shipping_cost number(8,2) not null,
+  7  	 order_tax number(4,2) not null,
+  8  	 order_province varchar2(2) not null constraint sys_tim_order_province_ck2
+  9  	     check (order_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QC', 'NB', 'NS', 'NL' ,'NT', 'NU', 'PE', 'YT' )),
+ 10  	 constraint sys_order_customer_no_fk foreign key (customer_no)
+ 11  	     references tim_customer(customer_no)
+ 12  );
+
+Table created.
+
+SQL> 
+SQL> create table tim_availability(
+  2  	 supplier_no number,
+  3  	 product_no number,
+  4  	 quantity_on_hand number not null constraint sys_quantity_ck check (quantity_on_hand >= 0),
+  5  	 estimated_delivery_days number check (estimated_delivery_days >= 0),
+  6  	 constraint sys_tim_availability_pk primary key (supplier_no, product_no),
+  7  	 constraint sys_supplier_no_fk foreign key (supplier_no) references tim_suppliers(supplier_no),
+  8  	 constraint sys_product_no_fk2 foreign key (product_no) references tim_product(product_no)
+  9  );
+
+Table created.
+
+SQL> 
+SQL> create table tim_order_item(
+  2  	 order_no number,
+  3  	 product_no number,
+  4  	 order_quantity number not null constraint sys_order_quantity_ck check (order_quantity > 0),
+  5  	 constraint sys_tim_order_item_pk primary key (order_no, product_no),
+  6  	 constraint sys_order_no_fk foreign key (order_no) references tim_orders(order_no),
+  7  	 constraint sys_product_id_fk3 foreign key (product_no) references tim_product(product_no)
+  8  );
+
+Table created.
+
+SQL> 
+SQL> spool off
